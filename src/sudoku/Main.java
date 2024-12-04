@@ -11,7 +11,7 @@ public class Main {
         // Use SwingUtilities.invokeLater to ensure GUI updates run on the EDT
         System.out.println("Sudoku ");
         SudokuMain game = new SudokuMain();
-
+        new SudokuMain();
 
     }
 }

@@ -54,13 +54,15 @@ public class GameBoardPanel extends JPanel {
         // hanya ditambahkan di cell yang to gueest
     }
 
+    // menambahkan metode difficult
+
     /**
      * Generate a new puzzle; and reset the game board of cells based on the puzzle.
      * You can call this method to start a new game.
      */
     public void newGame() {
         // Generate a new puzzle
-        puzzle.newPuzzle(2);
+        puzzle.newPuzzle(+1 );
 
         // Initialize all the 9x9 cells, based on the puzzle.
         for (int row = 0; row < SudokuConstants.GRID_SIZE; ++row) {
@@ -95,10 +97,6 @@ public class GameBoardPanel extends JPanel {
             // Get a reference of the JTextField that triggers this action event
             Cell sourceCell = (Cell)e.getSource();
 
-            // Retrieve the int entered
-            int numberIn = Integer.parseInt(sourceCell.getText());
-            // For debugging
-            System.out.println("You entered " + numberIn);
 
             /*
              * [TODO 5] (later - after TODO 3 and 4)
@@ -106,22 +104,93 @@ public class GameBoardPanel extends JPanel {
              * Update the cell status sourceCell.status,
              * and re-paint the cell via sourceCell.paint().
              */
-            if (numberIn == sourceCell.number) {
-                sourceCell.status = CellStatus.CORRECT_GUESS; // Status benar
-            } else {
-                sourceCell.paint();   // re-paint this cell based on its status
-            }
             /*
              * [TODO 6] (later)
              * Check if the player has solved the puzzle after this move,
              *   by calling isSolved(). Put up a congratulation JOptionPane, if so.
              */
-            if (isSolved()){
-                JOptionPane.showMessageDialog(null, "congratulation");
+
+            // Retrieve the int entered
+            int numberIn = Integer.parseInt(sourceCell.getText());
+            // For debugging
+            System.out.println("You entered " + numberIn);
+
+
+            //chech duplicate (manzil to do )
+            if (isDuplicate(sourceCell.row, sourceCell.col, numberIn)) {
+                sourceCell.status = CellStatus.WRONG_GUESS; // Mark as wrong guess if there's a duplicate
+                sourceCell.paint(); // Repaint the cell
+            } else {
+                // Check if the number entered is correct
+                if (numberIn == sourceCell.number) {
+                    sourceCell.status = CellStatus.CORRECT_GUESS; // Correct guess
+                } else {
+                    sourceCell.status = CellStatus.WRONG_GUESS; // Wrong guess
+                    sourceCell.paint();
+                }
+                sourceCell.paint(); // Repaint the cell
+            }
+            if (!isDuplicateFound()) { // Ensure no duplicates exist
+                if (isSolved()) {
+                    JOptionPane.showMessageDialog(null, "Congratulations Bro");
+                }
+            }  else {
+                JOptionPane.showMessageDialog(null, "Your number is duplicate bro ");
+
+            }
+
             }
 
         }
+
+        // manzil to do
+        private boolean isDuplicate(int row, int col, int number) {
+            // Check the row
+            for (int c = 0; c < SudokuConstants.GRID_SIZE; c++) {
+                if (c != col && cells[row][c].getText().equals(String.valueOf(number))) {
+                    return true; // Duplicate found in the row
+                }
+            }
+
+            // Check the column
+            for (int r = 0; r < SudokuConstants.GRID_SIZE; r++) {
+                if (r != row && cells[r][col].getText().equals(String.valueOf(number))) {
+                    return true; // Duplicate found in the column
+                }
+            }
+
+            // Check the sub-grid
+            int subGridRowStart = (row / SudokuConstants.SUBGRID_SIZE) * SudokuConstants.SUBGRID_SIZE;
+            int subGridColStart = (col / SudokuConstants.SUBGRID_SIZE) * SudokuConstants.SUBGRID_SIZE;
+
+            for (int r = subGridRowStart; r < subGridRowStart + SudokuConstants.SUBGRID_SIZE; r++) {
+                for (int c = subGridColStart; c < subGridColStart + SudokuConstants.SUBGRID_SIZE; c++) {
+                    if ((r != row || c != col) && cells[r][c].getText().equals(String.valueOf(number))) {
+                        return true; // Duplicate found in the sub-grid
+                    }
+                }
+            }
+
+            return false; // No duplicates found
+        }
+    private boolean isDuplicateFound() {
+        for (int r = 0; r < SudokuConstants.GRID_SIZE; r++) {
+            for (int c = 0; c < SudokuConstants.GRID_SIZE; c++) {
+                // Only check cells that are not empty
+                if (!cells[r][c].getText().isEmpty()) {
+                    int numberIn = Integer.parseInt(cells[r][c].getText());
+                    if (isDuplicate(r, c, numberIn)) {
+                        return true; // If duplicate is found, return true
+                    }
+                }
+            }
+        }
+        return false; // No duplicates found
     }
 
 
-}
+
+
+
+    }
+

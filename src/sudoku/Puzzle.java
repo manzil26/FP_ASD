@@ -68,8 +68,9 @@ public class Puzzle {
                 isGiven[row][col] = hardcodedIsGiven[row][col];
             }
         }
-    }
 
+
+    }
     //(For advanced students) use singleton design pattern for this class
 
 }
