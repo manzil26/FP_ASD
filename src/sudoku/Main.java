@@ -12,6 +12,12 @@ public class Main {
         System.out.println("Sudoku ");
         SudokuMain game = new SudokuMain();
         new SudokuMain();
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                new SudokuMain(); // Create an instance of SudokuMain to display the GUI
+            }
+        });
 
     }
 }

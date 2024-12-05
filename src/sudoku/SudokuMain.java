@@ -1,39 +1,45 @@
 package sudoku;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
 import javax.swing.*;
+
 /**
  * The main Sudoku program
  */
 public class SudokuMain extends JFrame {
 
     private static final long serialVersionUID = 1L;  // to prevent serial warning
-
     // private variables
     GameBoardPanel board = new GameBoardPanel();
     JButton btnNewGame = new JButton("New Game");
 
+    private JButton btnSubmitScore = new JButton("Submit Score");
+    private JTextField playerNameField = new JTextField(20);
+    private LeaderBoard leaderBoard = new LeaderBoard();
+
     // Constructor
     public SudokuMain() {
 
-        // getContentPane itu  dari jframe
-        //Container	getContentPane()
-        //Returns the contentPane object for this frame.
+        // getContentPane itu dari JFrame
+        // Container getContentPane()
+        // Returns the contentPane object for this frame.
         Container cp = getContentPane();
 
         //
         cp.setLayout(new BorderLayout());
 
-        cp.add(board, BorderLayout.CENTER); // board masuk ke j panel
-        // menambahkan j panel  board ke tengah
+        cp.add(board, BorderLayout.CENTER); // board masuk ke JPanel
+        // menambahkan JPanel board ke tengah
 
         // Add a button to the south to re-start the game via board.newGame()
         // manzil
         cp.add(btnNewGame, BorderLayout.SOUTH);
 
         // Initialize the game board to start the game
-       board.newGame(); // biar fleksible buat sizenya, kla ful,l screen menyesuaikan
+        board.newGame(); // biar fleksibel buat sizenya, kalau full screen menyesuaikan
 
         // to do add menu (manzil)
         JMenuBar menuBar = new JMenuBar();
@@ -43,7 +49,6 @@ public class SudokuMain extends JFrame {
         JMenuItem newGameItem = new JMenuItem("New Game");
         JMenuItem resetGameItem = new JMenuItem("Reset Game");
         JMenuItem exitItem = new JMenuItem("Exit");
-
 
         // Add action listeners for menu items
         newGameItem.addActionListener(new ActionListener() {
@@ -60,38 +65,41 @@ public class SudokuMain extends JFrame {
             }
         });
 
-        // Add menu items to the " file" Menu
+        exitItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.exit(0);  // Exit the program
+            }
+        });
+
+        // Add menu items to the "File" Menu
         fileMenu.add(newGameItem);
         fileMenu.add(resetGameItem);
         fileMenu.addSeparator();
         fileMenu.add(exitItem);
 
-        // create "option" menu
+        // Create "Options" menu
         JMenu optionsMenu = new JMenu("Options");
         JMenuItem changeDifficultyItem = new JMenuItem("Change Difficulty");
         changeDifficultyItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JOptionPane.showMessageDialog(null, "Difdiculty options can be added here. ");
+                JOptionPane.showMessageDialog(null, "Difficulty options can be added here.");
             }
         });
-        JMenuItem enableSoundItem = new JMenuItem("Enable Sound ");
+        JMenuItem enableSoundItem = new JMenuItem("Enable Sound");
         enableSoundItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JOptionPane.showMessageDialog(null, "Sound enable/ disable");
-
+                JOptionPane.showMessageDialog(null, "Sound enable/disable");
             }
         });
-
-
 
         optionsMenu.add(changeDifficultyItem);
         optionsMenu.add(enableSoundItem);
 
         // Create "Help" menu
-        // Create "Help" menu
-        JMenu helPMenu = new JMenu("Help");
+        JMenu helpMenu = new JMenu("Help");
         JMenuItem aboutItem = new JMenuItem("About"); // Gunakan JMenuItem, bukan JMenu
         aboutItem.addActionListener(new ActionListener() {
             @Override
@@ -108,15 +116,44 @@ public class SudokuMain extends JFrame {
             }
         });
 
-        helPMenu.add(aboutItem);
-        helPMenu.add(instructionItem);
+        helpMenu.add(aboutItem);
+        helpMenu.add(instructionItem);
 
-        // add menu to the menu bar
+        // Add menus to the menu bar
         menuBar.add(fileMenu);
         menuBar.add(optionsMenu);
-        menuBar.add(helPMenu);
+        menuBar.add(helpMenu);
 
-        // set the menu bar to the frame
+        // Add a panel for score submission
+        JPanel scorePanel = new JPanel();
+        scorePanel.add(new JLabel("Player Name:"));
+        scorePanel.add(playerNameField);
+        scorePanel.add(btnSubmitScore);
+
+        btnSubmitScore.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String playerName = playerNameField.getText();
+                int score = calculateScore();
+                leaderBoard.addScores(playerName, score);
+                JOptionPane.showMessageDialog(null, "Score submitted!");
+                playerNameField.setText(""); // Clear the input field
+            }
+        });
+
+        JButton btnShowLeaderboard = new JButton("Show Leaderboard");
+        btnShowLeaderboard.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                showLeaderboard();
+            }
+        });
+        scorePanel.add(btnShowLeaderboard);
+
+        // Add score panel to the bottom
+        cp.add(scorePanel, BorderLayout.NORTH);
+
+        // Set the menu bar to the frame
         setJMenuBar(menuBar);
         pack();     // Pack the UI components, instead of using setSize()
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);  // to handle window-closing
@@ -124,5 +161,22 @@ public class SudokuMain extends JFrame {
         setVisible(true);
     }
 
+    private void showLeaderboard() {
+        JFrame leaderboardFrame = new JFrame("High Scores");
+        JTextArea leaderboardArea = new JTextArea();
+        leaderboardArea.setEditable(false);
+        List<ScoreEntry> topScores = leaderBoard.getTopScores(10); // Use the instance variable
+        for (ScoreEntry entry : topScores) {
+            leaderboardArea.append(entry.getPlayerName() + ": " + entry.getScore() + "\n");
+        }
+        leaderboardFrame.add(new JScrollPane(leaderboardArea));
+        leaderboardFrame.setSize(300, 400);
+        leaderboardFrame.setVisible(true);
+    }
 
+    private int calculateScore() {
+        // Implement your scoring logic here
+        // For example, you could return a random score for testing
+        return (int) (Math.random() * 100); // Replace with actual score calculation
+    }
 }
