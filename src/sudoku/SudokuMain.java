@@ -30,8 +30,6 @@ public class SudokuMain extends JFrame {
         // Container getContentPane()
         // Returns the contentPane object for this frame.
         Container cp = getContentPane();
-
-        //
         cp.setLayout(new BorderLayout());
 
         cp.add(board, BorderLayout.CENTER); // board masuk ke JPanel
@@ -206,38 +204,33 @@ public class SudokuMain extends JFrame {
 
         // Create a JTextArea to display the leaderboard text
         JTextArea leaderboardArea = new JTextArea();
-        leaderboardArea.setEditable(false);  // Make the text area non-editable
+        leaderboardArea.setEditable(false);
 
         // Retrieve the top scores from the leaderboard
-        List<ScoreEntry> topScores = leaderBoard.getTopScores(10);  // Get the top 10 scores
+        List<ScoreEntry> topScores = leaderBoard.getTopScores(10);
 
         // If there are no scores, display a message
         if (topScores.isEmpty()) {
             leaderboardArea.append("No scores yet!\n");
         } else {
-            // Loop through the top scores and add them to the JTextArea
+
             for (ScoreEntry entry : topScores) {
                 leaderboardArea.append(entry.getPlayerName() + ": " + entry.getScore() + "\n");
             }
         }
 
-
-
-        // Add the JTextArea to a JScrollPane for better readability if there are many scores
         JScrollPane scrollPane = new JScrollPane(leaderboardArea);
 
         // Set up the leaderboard window
         leaderboardFrame.add(scrollPane);
         leaderboardFrame.setSize(300, 400);
-        leaderboardFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);  // Close only this frame
-        leaderboardFrame.setLocationRelativeTo(null);  // Center the frame
+        leaderboardFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        leaderboardFrame.setLocationRelativeTo(null);
         leaderboardFrame.setVisible(true);
     }
 
 
     private int calculateScore() {
-        // Implement your scoring logic here
-        // For example, you could return a random score for testing
-        return (int) (Math.random() * 100); // Replace with actual score calculation
+        return (int) (Math.random() * 100);
     }
 }
