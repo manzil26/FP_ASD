@@ -12,15 +12,13 @@ public class Cell extends JTextField {
 
     // Define named constants for JTextField's colors and fonts
     //  to be chosen based on CellStatus
-    public static final Color BG_GIVEN = new Color(240, 240, 240); // RGB
- // bacgound gray
-    public static final Color FG_GIVEN = Color.BLACK;
-    // teks color = font color
-    public static final Color FG_NOT_GIVEN = Color.GRAY;
-    public static final Color BG_TO_GUESS  = Color.YELLOW;
-    public static final Color BG_CORRECT_GUESS = new Color(0, 216, 0);
-    public static final Color BG_WRONG_GUESS   = new Color(216, 0, 0);
-    public static final Font FONT_NUMBERS = new Font("OCR A Extended", Font.PLAIN, 28);
+    public static final Color BG_GIVEN = new Color(173, 216, 230);
+    public static final Color FG_GIVEN = new Color(0, 51, 102);
+    public static final Color FG_NOT_GIVEN = new Color(105, 105, 105);
+    public static final Color BG_TO_GUESS = new Color(255, 255, 200);
+    public static final Color BG_CORRECT_GUESS = new Color(255, 204, 153);
+    public static final Color BG_WRONG_GUESS = new Color(255, 220, 220);
+    public static final Font FONT_NUMBERS = new Font("Comic Sans MS",Font.BOLD,28);
 
     // Define properties (package-visible)
     /** The row and column number [0-8] of this cell */

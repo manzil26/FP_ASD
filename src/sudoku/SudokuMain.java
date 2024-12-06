@@ -11,6 +11,7 @@ import javax.swing.*;
  */
 public class SudokuMain extends JFrame {
 
+
     private static final long serialVersionUID = 1L;  // to prevent serial warning
     // private variables
     GameBoardPanel board = new GameBoardPanel();
@@ -22,7 +23,9 @@ public class SudokuMain extends JFrame {
 
     // Constructor
     public SudokuMain() {
-
+        // Inisialisasi audio
+        SoundEffect backSound = new SoundEffect("sudoku/bensound-clearday.wav");
+        backSound.play(); // Memulai backsound
         // getContentPane itu dari JFrame
         // Container getContentPane()
         // Returns the contentPane object for this frame.
@@ -80,50 +83,24 @@ public class SudokuMain extends JFrame {
 
         // Create "Options" menu
         JMenu optionsMenu = new JMenu("Options");
-        JMenuItem changeDifficultyItem = new JMenuItem("Change Difficulty");
-        changeDifficultyItem.addActionListener(new ActionListener() {
+
+        JMenuItem toggleSoundItem = new JMenuItem("Mute sound");
+        toggleSoundItem.addActionListener(new ActionListener() {
+            private boolean isPlaying = true;
+
             @Override
             public void actionPerformed(ActionEvent e) {
-                String[] options = {"Easy", "Medium", "Hard"};
-                int difficulty = JOptionPane.showOptionDialog(
-                        null,
-                        "Select Difficulty Level",
-                        "Change Difficulty",
-                        JOptionPane.DEFAULT_OPTION,
-                        JOptionPane.INFORMATION_MESSAGE,
-                        null,
-                        options,
-                        options[0]);
-
-                int cellsToGuess;
-                switch (difficulty) {
-                    case 0:
-                        cellsToGuess = 20; // Easy
-                        break;
-                    case 1:
-                        cellsToGuess = 40; // Medium
-                        break;
-                    case 2:
-                        cellsToGuess = 60; // Hard
-                        break;
-                    default:
-                        return; // Cancel atau tutup
+                if (isPlaying) {
+                    backSound.stop(); // Hentikan audio
+                    isPlaying = false;
+                } else {
+                    backSound.play(); // Putar ulang audio
+                    isPlaying = true;
                 }
-
-                board.puzzle.newPuzzle("difficulty");
-                board.newGame();
-            }
-        });
-        JMenuItem enableSoundItem = new JMenuItem("Enable Sound");
-        enableSoundItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JOptionPane.showMessageDialog(null, "Sound enable/disable");
             }
         });
 
-        optionsMenu.add(changeDifficultyItem);
-        optionsMenu.add(enableSoundItem);
+        optionsMenu.add(toggleSoundItem);
 
         // Create "Help" menu
         JMenu helpMenu = new JMenu("Help");
@@ -157,18 +134,53 @@ public class SudokuMain extends JFrame {
         scorePanel.add(playerNameField);
         scorePanel.add(btnSubmitScore);
 
+        JButton btnShowLeaderboard = new JButton("Show Leaderboard");
+
         btnSubmitScore.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String playerName = playerNameField.getText();
+
+                // Check if the player has entered a name
+                if (playerName.isEmpty() ) {
+                    JOptionPane.showMessageDialog(null, "Please enter your name.");
+                    return;
+                }
+                if (!board.isSolved()) {
+                    JOptionPane.showMessageDialog(null, "Please fill in the cells before submitting your score.");
+                    return;
+                }
+
                 int score = calculateScore();
-                leaderBoard.addScores(playerName, score);
-                JOptionPane.showMessageDialog(null, "Score submitted!");
-                playerNameField.setText(""); // Clear the input field
+
+                // Check if the player has already submitted a score (duplicate)
+                boolean isDuplicate = false;
+                for (ScoreEntry entry : leaderBoard.getTopScores(10)) {
+                    if (entry.getPlayerName().equals(playerName)) {
+                        isDuplicate = true;
+                        break;
+                    }
+                }
+
+                // If it's a duplicate player, reduce score by 1
+                if (isDuplicate) {
+                    score -= 1;
+                }
+
+                // If the player hasn't started the game, set score to 0
+                if (score == 0) {
+                    JOptionPane.showMessageDialog(null, "You haven't started the game yet. Score is 0.");
+                } else {
+                    // Submit the score
+                    leaderBoard.addScores(playerName, score);
+                    JOptionPane.showMessageDialog(null, "Score submitted!");
+                }
+
+                // Clear the input field
+                playerNameField.setText("");
             }
         });
 
-        JButton btnShowLeaderboard = new JButton("Show Leaderboard");
         btnShowLeaderboard.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -189,17 +201,39 @@ public class SudokuMain extends JFrame {
     }
 
     private void showLeaderboard() {
+        // Create a new JFrame to display the leaderboard
         JFrame leaderboardFrame = new JFrame("High Scores");
+
+        // Create a JTextArea to display the leaderboard text
         JTextArea leaderboardArea = new JTextArea();
-        leaderboardArea.setEditable(false);
-        List<ScoreEntry> topScores = leaderBoard.getTopScores(10); // Use the instance variable
-        for (ScoreEntry entry : topScores) {
-            leaderboardArea.append(entry.getPlayerName() + ": " + entry.getScore() + "\n");
+        leaderboardArea.setEditable(false);  // Make the text area non-editable
+
+        // Retrieve the top scores from the leaderboard
+        List<ScoreEntry> topScores = leaderBoard.getTopScores(10);  // Get the top 10 scores
+
+        // If there are no scores, display a message
+        if (topScores.isEmpty()) {
+            leaderboardArea.append("No scores yet!\n");
+        } else {
+            // Loop through the top scores and add them to the JTextArea
+            for (ScoreEntry entry : topScores) {
+                leaderboardArea.append(entry.getPlayerName() + ": " + entry.getScore() + "\n");
+            }
         }
-        leaderboardFrame.add(new JScrollPane(leaderboardArea));
+
+
+
+        // Add the JTextArea to a JScrollPane for better readability if there are many scores
+        JScrollPane scrollPane = new JScrollPane(leaderboardArea);
+
+        // Set up the leaderboard window
+        leaderboardFrame.add(scrollPane);
         leaderboardFrame.setSize(300, 400);
+        leaderboardFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);  // Close only this frame
+        leaderboardFrame.setLocationRelativeTo(null);  // Center the frame
         leaderboardFrame.setVisible(true);
     }
+
 
     private int calculateScore() {
         // Implement your scoring logic here
