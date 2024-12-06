@@ -18,7 +18,5 @@ public class Main {
                 new SudokuMain(); // Create an instance of SudokuMain to display the GUI
             }
         });
-
-
     }
 }
