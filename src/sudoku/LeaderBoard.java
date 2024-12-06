@@ -17,5 +17,4 @@ public class LeaderBoard {
     public List<ScoreEntry> getTopScores(int limit) {
         return scores.subList(0, Math.min(limit, scores.size()));
     }
-
 }

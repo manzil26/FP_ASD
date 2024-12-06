@@ -36,7 +36,7 @@ public class SudokuMain extends JFrame {
 
         // Add a button to the south to re-start the game via board.newGame()
         // manzil
-       // cp.add(btnNewGame, BorderLayout.SOUTH);
+        // cp.add(btnNewGame, BorderLayout.SOUTH);
 
         // Initialize the game board to start the game
         board.newGame(); // biar fleksibel buat sizenya, kalau full screen menyesuaikan
@@ -54,7 +54,7 @@ public class SudokuMain extends JFrame {
         newGameItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                board.newGame();  // Start a new game
+                board.newGame();  // Langsung memulai game baru
             }
         });
 
@@ -84,7 +84,34 @@ public class SudokuMain extends JFrame {
         changeDifficultyItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JOptionPane.showMessageDialog(null, "Difficulty options can be added here.");
+                String[] options = {"Easy", "Medium", "Hard"};
+                int difficulty = JOptionPane.showOptionDialog(
+                        null,
+                        "Select Difficulty Level",
+                        "Change Difficulty",
+                        JOptionPane.DEFAULT_OPTION,
+                        JOptionPane.INFORMATION_MESSAGE,
+                        null,
+                        options,
+                        options[0]);
+
+                int cellsToGuess;
+                switch (difficulty) {
+                    case 0:
+                        cellsToGuess = 20; // Easy
+                        break;
+                    case 1:
+                        cellsToGuess = 40; // Medium
+                        break;
+                    case 2:
+                        cellsToGuess = 60; // Hard
+                        break;
+                    default:
+                        return; // Cancel atau tutup
+                }
+
+                board.puzzle.newPuzzle("difficulty");
+                board.newGame();
             }
         });
         JMenuItem enableSoundItem = new JMenuItem("Enable Sound");

@@ -1,6 +1,9 @@
 package sudoku;
+
+import java.util.Random;
+
 /**
- * The Sudoku number puzzle to be solved
+ * The Sudoku number puzzle to be solved.
  */
 public class Puzzle {
     // All variables have package access
@@ -10,67 +13,99 @@ public class Puzzle {
     boolean[][] isGiven = new boolean[SudokuConstants.GRID_SIZE][SudokuConstants.GRID_SIZE];
 
     private static Puzzle instance;
-    // Constructor
-    private Puzzle() {
-        super(); // extend object // this is useless agar...
-    }
-    public static  Puzzle getInstance(){
-        if (instance == null){
-            instance = new Puzzle();
 
+    // Constructor (private for Singleton)
+    private Puzzle() {
+        super();
+    }
+
+    // Singleton pattern to get the single instance of Puzzle
+    public static Puzzle getInstance() {
+        if (instance == null) {
+            instance = new Puzzle();
         }
         return instance;
     }
-    // Generate a new puzzle given the number of cells to be guessed, which can be used
-    //  to control the difficulty level.
-    // This method shall set (or update) the arrays numbers and isGiven
-    public void newPuzzle(int cellsToGuess) {
-        // I hardcode a puzzle here for illustration and testing.
-        // kalau bisa di edit suapya lebih panjang
-        // hardcode itu kunci jawabanya
 
-        int[][] hardcodedNumbers =
-                        {{5, 3, 4, 6, 7, 8, 9, 1, 2},
-                        {6, 7, 2, 1, 9, 5, 3, 4, 8},
-                        {1, 9, 8, 3, 4, 2, 5, 6, 7},
-                        {8, 5, 9, 7, 6, 1, 4, 2, 3},
-                        {4, 2, 6, 8, 5, 3, 7, 9, 1},
-                        {7, 1, 3, 9, 2, 4, 8, 5, 6},
-                        {9, 6, 1, 5, 3, 7, 2, 8, 4},
-                        {2, 8, 7, 4, 1, 9, 6, 3, 5},
-                        {3, 4, 5, 2, 8, 6, 1, 7, 9}};
+    /**
+     * Generate a new puzzle given the difficulty level (easy, medium, hard).
+     * This method sets (or updates) the arrays `numbers` and `isGiven`.
+     *
+     * @param difficulty the level of difficulty ("easy", "medium", "hard")
+     */
+    public void newPuzzle(String difficulty) {
+        // Hardcoded solution (kunci jawaban)
+        int[][] hardcodedNumbers = {
+                {5, 3, 4, 6, 7, 8, 9, 1, 2},
+                {6, 7, 2, 1, 9, 5, 3, 4, 8},
+                {1, 9, 8, 3, 4, 2, 5, 6, 7},
+                {8, 5, 9, 7, 6, 1, 4, 2, 3},
+                {4, 2, 6, 8, 5, 3, 7, 9, 1},
+                {7, 1, 3, 9, 2, 4, 8, 5, 6},
+                {9, 6, 1, 5, 3, 7, 2, 8, 4},
+                {2, 8, 7, 4, 1, 9, 6, 3, 5},
+                {3, 4, 5, 2, 8, 6, 1, 7, 9}
+        };
 
-        // Copy from hardcodedNumbers into the array "numbers"
-        // masukkan hardcode ke kunci jawabanya
+        // Copy the hardcoded solution into the `numbers` array
         for (int row = 0; row < SudokuConstants.GRID_SIZE; ++row) {
             for (int col = 0; col < SudokuConstants.GRID_SIZE; ++col) {
                 numbers[row][col] = hardcodedNumbers[row][col];
             }
         }
 
-        // Need to use input parameter cellsToGuess!
-        // Hardcoded for testing, only 2 cells of "8" is NOT GIVEN
-        // di cek manah angka yang udah diisi manah yang belum
-        boolean[][] hardcodedIsGiven =
-                         {{true, true, true, true, true, false, true, true, true},
-                        {true, true, true, true, true, true, true, true, false},
-                        {true, true, true, true, true, true, true, true, true},
-                        {true, true, true, true, true, true, true, true, true},
-                        {true, true, true, true, true, true, true, true, true},
-                        {true, true, true, true, true, true, true, true, true},
-                        {true, true, true, true, true, true, true, true, true},
-                        {true, true, true, true, true, true, true, true, true},
-                        {true, true, true, true, true, true, true, true, true}};
+        // Determine the number of cells to guess based on the difficulty
+        int cellsToGuess;
+        switch (difficulty.toLowerCase()) {
+            case "easy":
+                cellsToGuess = 20; // Easy: fewer empty cells
+                break;
+            case "medium":
+                cellsToGuess = 40; // Medium: moderate number of empty cells
+                break;
+            case "hard":
+                cellsToGuess = 60; // Hard: many empty cells
+                break;
+            default:
+                cellsToGuess = 40; // Default to medium if invalid
+        }
 
-        // Copy from hardcodedIsGiven into array "isGiven"
+        // Initialize all cells as "given" (true)
         for (int row = 0; row < SudokuConstants.GRID_SIZE; ++row) {
             for (int col = 0; col < SudokuConstants.GRID_SIZE; ++col) {
-                isGiven[row][col] = hardcodedIsGiven[row][col];
+                isGiven[row][col] = true;
             }
         }
 
+        // Randomly empty cells to match the difficulty
+        Random random = new Random();
+        int count = 0;
+        while (count < cellsToGuess) {
+            int row = random.nextInt(SudokuConstants.GRID_SIZE);
+            int col = random.nextInt(SudokuConstants.GRID_SIZE);
 
+            // Only mark as "not given" if it's not already marked
+            if (isGiven[row][col]) {
+                isGiven[row][col] = false;
+                count++;
+            }
+        }
     }
-    //(For advanced students) use singleton design pattern for this class
 
+    /**
+     * Display the current puzzle for testing purposes.
+     */
+    public void printPuzzle() {
+        System.out.println("Puzzle:");
+        for (int row = 0; row < SudokuConstants.GRID_SIZE; ++row) {
+            for (int col = 0; col < SudokuConstants.GRID_SIZE; ++col) {
+                if (isGiven[row][col]) {
+                    System.out.print(numbers[row][col] + " ");
+                } else {
+                    System.out.print(". "); // Empty cells as "."
+                }
+            }
+            System.out.println();
+        }
+    }
 }
