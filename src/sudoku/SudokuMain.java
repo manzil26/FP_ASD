@@ -36,7 +36,7 @@ public class SudokuMain extends JFrame {
 
         // Add a button to the south to re-start the game via board.newGame()
         // manzil
-        cp.add(btnNewGame, BorderLayout.SOUTH);
+       // cp.add(btnNewGame, BorderLayout.SOUTH);
 
         // Initialize the game board to start the game
         board.newGame(); // biar fleksibel buat sizenya, kalau full screen menyesuaikan
