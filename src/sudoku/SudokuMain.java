@@ -54,7 +54,27 @@ public class SudokuMain extends JFrame {
         newGameItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                board.newGame();  // Start a new game
+                String[] options = {"Easy", "Medium", "Hard"};
+                int difficulty = JOptionPane.showOptionDialog(
+                        null,
+                        "Select Difficulty Level",
+                        "New Game",
+                        JOptionPane.DEFAULT_OPTION,
+                        JOptionPane.INFORMATION_MESSAGE,
+                        null,
+                        options,
+                        options[0]);
+
+                int cellsToGuess;
+                switch (difficulty) {
+                    case 0: cellsToGuess = 20; break; // Easy
+                    case 1: cellsToGuess = 40; break; // Medium
+                    case 2: cellsToGuess = 60; break; // Hard
+                    default: return; // Cancel atau tutup
+                }
+
+                board.puzzle.newPuzzle("difficulty");
+                board.newGame();
             }
         });
 
@@ -107,6 +127,8 @@ public class SudokuMain extends JFrame {
                 JOptionPane.showMessageDialog(null, "Sudoku Game\n\nDeveloped by Jawan Indian Lilahita'alah Group", "About", JOptionPane.INFORMATION_MESSAGE);
             }
         });
+
+
 
         JMenuItem instructionItem = new JMenuItem("Instruction");
         instructionItem.addActionListener(new ActionListener() {

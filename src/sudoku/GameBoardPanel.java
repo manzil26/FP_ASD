@@ -4,9 +4,11 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
+
+
 public class GameBoardPanel extends JPanel {
     private static final long serialVersionUID = 1L;  // to prevent serial warning
-
+    private JComboBox<String> difficultySelector;
     // Define named constants for UI sizes
     public static final int CELL_SIZE = 60;   // Cell width/height in pixels
     // bujur sangkar
@@ -18,11 +20,27 @@ public class GameBoardPanel extends JPanel {
     /** The game board composes of 9x9 Cells (customized JTextFields) */
     private Cell[][] cells = new Cell[SudokuConstants.GRID_SIZE][SudokuConstants.GRID_SIZE];
     /** It also contains a Puzzle with array numbers and isGiven */
-    private Puzzle puzzle =  Puzzle.getInstance();;
+    public Puzzle puzzle =  Puzzle.getInstance();;
 
     /** Constructor */
 
+
     public GameBoardPanel() {
+        difficultySelector = new JComboBox<>(new String[]{"Easy", "Medium", "Hard"});
+        difficultySelector.addActionListener(e -> newGame());
+        JPanel controlPanel = new JPanel();
+        controlPanel.add(new JLabel("Select Difficulty:"));
+        controlPanel.add(difficultySelector);
+
+        // Tambahkan controlPanel ke dalam JFrame atau layout utama
+        JFrame mainFrame = new JFrame();
+        mainFrame.setLayout(new BorderLayout());
+        mainFrame.add(controlPanel, BorderLayout.NORTH);
+        mainFrame.add(this, BorderLayout.CENTER);
+
+        mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        mainFrame.pack();
+        mainFrame.setVisible(true);
         super.setLayout(new GridLayout(SudokuConstants.GRID_SIZE, SudokuConstants.GRID_SIZE));  // JPanel
        // panggil j panel
         // Allocate the 2D array of Cell, and added into JPanel.
@@ -33,6 +51,7 @@ public class GameBoardPanel extends JPanel {
                 // jpanel di tambah cells textfield ( row dan colom )
             }
         }
+
 
         // [TODO 3] Allocate a common listener as the ActionEvent listener for all the
         //  Cells (JTextFields)
@@ -61,10 +80,18 @@ public class GameBoardPanel extends JPanel {
      * You can call this method to start a new game.
      */
     public void newGame() {
-        // Generate a new puzzle
-        puzzle.newPuzzle(+1 );
+        String difficulty = (String) difficultySelector.getSelectedItem();
 
-        // Initialize all the 9x9 cells, based on the puzzle.
+        // Konversi tingkat kesulitan ke format puzzle
+        if (difficulty.equalsIgnoreCase("Easy")) {
+            puzzle.newPuzzle("easy");
+        } else if (difficulty.equalsIgnoreCase("Medium")) {
+            puzzle.newPuzzle("medium");
+        } else if (difficulty.equalsIgnoreCase("Hard")) {
+            puzzle.newPuzzle("hard");
+        }
+
+        // Reset semua cell berdasarkan puzzle baru
         for (int row = 0; row < SudokuConstants.GRID_SIZE; ++row) {
             for (int col = 0; col < SudokuConstants.GRID_SIZE; ++col) {
                 cells[row][col].newGame(puzzle.numbers[row][col], puzzle.isGiven[row][col]);
@@ -86,6 +113,7 @@ public class GameBoardPanel extends JPanel {
         }
         return true;
     }
+
 
     // [TODO 2] Define a Listener Inner Class for all the editable Cells
     // manzil
@@ -187,10 +215,5 @@ public class GameBoardPanel extends JPanel {
         }
         return false; // No duplicates found
     }
-
-
-
-
-
-    }
+}
 
