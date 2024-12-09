@@ -9,7 +9,10 @@ import javax.swing.*;
  * The Board and Cell classes are separated in their own classes.
  */
 public class GameMain extends JPanel {
+    private AIPlayerMinimax aiPlayer;
     private static final long serialVersionUID = 1L; // to prevent serializable warning
+    private boolean isAIMode = true; // Default: manusia vs AI
+
 
     // Define named constants for the drawing graphics
     public static final String TITLE = "Tic Tac Toe";
@@ -29,6 +32,8 @@ public class GameMain extends JPanel {
     private SoundEffect moveSound;
     private SoundEffect winSound;
     private SoundEffect drawSound;
+    private SoundEffect moveAISound;
+
 
     /** Constructor to setup the UI and game components */
     public GameMain() {
@@ -37,49 +42,68 @@ public class GameMain extends JPanel {
         moveSound = new SoundEffect("TikTakTu/beep.wav");
         winSound = new SoundEffect("TikTakTu/mati.wav");
         drawSound = new SoundEffect("TikTakTu/meledak.wav");
+        moveAISound = new SoundEffect("TikTakTu/cute.wav"); // File suara langkah AI
 
 
-        // This JPanel fires MouseEvent
+
+
         super.addMouseListener(new MouseAdapter() {
+
             @Override
             public void mouseClicked(MouseEvent e) {
-                int mouseX = e.getX();  // Get the X-coordinate of the mouse click
-                int colSelected = mouseX / Cell.SIZE;  // Calculate the column based on mouse position
+                int mouseX = e.getX();
+                int colSelected = mouseX / Cell.SIZE;
 
-                System.out.println("Mouse X: " + mouseX + ", Col Selected: " + colSelected);  // Debugging line
+                if (currentState == State.PLAYING) {
+                    if (currentPlayer == Seed.CROSS) {
+                        // Langkah manusia
+                        if (colSelected >= 0 && colSelected < Board.COLS) {
+                            for (int row = Board.ROWS - 1; row >= 0; row--) {
+                                if (board.cells[row][colSelected].content == Seed.NO_SEED) {
+                                    currentState = board.stepGame(currentPlayer, row, colSelected);
+                                    moveSound.play();
 
-                if (currentState == State.PLAYING) {  // Only allow moves if the game is still ongoing
-                    if (colSelected >= 0 && colSelected < Board.COLS) {
-                        // Check from bottom to top for an empty row in the selected column
-                        for (int row = Board.ROWS - 1; row >= 0; row--) {
-                            if (board.cells[row][colSelected].content == Seed.NO_SEED) {
-                                currentState = board.stepGame(currentPlayer, row, colSelected); // Update game state
-                                moveSound.play();  // Play move sound
+                                    // Periksa kemenangan atau hasil seri
+                                    if (currentState == State.CROSS_WON || currentState == State.NOUGHT_WON) {
+                                        winSound.play();
+                                    } else if (currentState == State.DRAW) {
+                                        drawSound.play();
+                                    }
 
-                                // Check for win or draw
-                                if (currentState == State.CROSS_WON || currentState == State.NOUGHT_WON) {
-                                    winSound.play();
-                                } else if (currentState == State.DRAW) {
-                                    drawSound.play();
+                                    // Berikan giliran ke AI dengan jeda
+                                    currentPlayer = Seed.NOUGHT;
+                                    Timer aiTimer = new Timer(500, event -> { // Jeda 500 ms
+                                        if (currentPlayer == Seed.NOUGHT && currentState == State.PLAYING) {
+                                            // Langkah AI
+                                            int[] aiMove = aiPlayer.move();
+                                            currentState = board.stepGame(currentPlayer, aiMove[0], aiMove[1]);
+                                            moveAISound.play();
+
+                                            // Periksa kemenangan atau hasil seri
+                                            if (currentState == State.CROSS_WON || currentState == State.NOUGHT_WON) {
+                                                winSound.play();
+                                            } else if (currentState == State.DRAW) {
+                                                drawSound.play();
+                                            }
+
+                                            // Berikan giliran kembali ke manusia
+                                            currentPlayer = Seed.CROSS;
+                                            repaint();
+                                        }
+                                    });
+                                    aiTimer.setRepeats(false);
+                                    aiTimer.start();
+                                    repaint();
+                                    break;
                                 }
-
-                                // Switch player
-                                currentPlayer = (currentPlayer == Seed.CROSS) ? Seed.NOUGHT : Seed.CROSS;
-                                repaint();  // Refresh display
-                                break;
                             }
                         }
-                    } else {
-                        System.out.println("Invalid column selected: " + colSelected);  // Out of bounds
                     }
-                } else {  // If the game has ended, start a new game on click
-                    newGame();  // Reset the game
-                    repaint();  // Refresh display
+                } else {
+                    newGame();
+                    repaint();
                 }
             }
-
-
-
 
         });
 
@@ -99,14 +123,19 @@ public class GameMain extends JPanel {
         super.setBorder(BorderFactory.createLineBorder(COLOR_BG_STATUS, 2, false));
 
         // Set up Game
-        initGame();
+        initGame(true);
         newGame();
     }
 
     /** Initialize the game (run once) */
-    public void initGame() {
-        board = new Board();  // allocate the game-board
+    public void initGame(boolean isAIMode) {
+        this.isAIMode = isAIMode;
+        board = new Board();
+        if (isAIMode) {
+            aiPlayer = new AIPlayerMinimax(board);
+        }
     }
+
 
     /** Reset the game-board contents and the current-state, ready for new game */
     public void newGame() {
@@ -115,6 +144,7 @@ public class GameMain extends JPanel {
                 board.cells[row][col].content = Seed.NO_SEED; // all cells empty
             }
         }
+
         currentPlayer = Seed.CROSS;    // cross plays first
         currentState = State.PLAYING;  // ready to play
     }
