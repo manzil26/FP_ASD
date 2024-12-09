@@ -5,8 +5,9 @@ import java.awt.*;
  */
 public class Board {
     // Define named constants
-    public static final int ROWS = 6;
-    public static final int COLS = 7;
+    public static final int ROWS = 6;   // 6 baris untuk Connect4
+    public static final int COLS = 7;   // 7 kolom untuk Connect4
+    public Cell[][] cells;             // Papan permainan
 
     // Define named constants for drawing
     public static final int CANVAS_WIDTH = Cell.SIZE * COLS;  // the drawing canvas
@@ -18,7 +19,7 @@ public class Board {
 
     // Define properties (package-visible)
     /** Composes of 2D array of ROWS-by-COLS Cell instances */
-    Cell[][] cells;
+
 
     /** Constructor to initialize the game board */
     public Board() {
@@ -27,14 +28,20 @@ public class Board {
 
     /** Initialize the game objects (run once) */
     public void initGame() {
-        cells = new Cell[ROWS][COLS]; // allocate the array
-        for (int row = 0; row < ROWS; ++row) {
-            for (int col = 0; col < COLS; ++col) {
-                // Allocate element of the array
+        cells = new Cell[ROWS][COLS];
+        for (int row = 0; row < ROWS; row++) {
+            for (int col = 0; col < COLS; col++) {
                 cells[row][col] = new Cell(row, col);
-                // Cells are initialized in the constructor
             }
         }
+    }
+    public int getFirstAvailableRow(int col) {
+        for (int row = ROWS - 1; row >= 0; row--) {
+            if (cells[row][col].content == Seed.NO_SEED) {
+                return row;
+            }
+        }
+        return -1;  // Kolom penuh
     }
 
     /** Reset the game board, ready for new game */
